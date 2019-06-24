@@ -1,9 +1,11 @@
 import React from 'react';
 
-export default class TagSlider extends React.Component<{}, {}> {
+interface Props extends React.HTMLAttributes<HTMLDivElement> {}
+
+export default class TagSlider extends React.Component<Props, {}> {
   public render() {
     return (
-      <div>1 2 3 4 5</div>
+      <div className={this.props.className}>1 2 3 4 5</div>
     );
   }
 }
