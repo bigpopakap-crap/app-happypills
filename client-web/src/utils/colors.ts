@@ -5,5 +5,5 @@ import { getLuminance, darken } from 'polished';
  * on the background color it's on.
  */
 export function getContrastedTextColor(bgColor: string) {
-    return getLuminance(bgColor) < .5 ? 'white' : 'black';
+  return getLuminance(bgColor) < 0.5 ? 'white' : 'black';
 }
