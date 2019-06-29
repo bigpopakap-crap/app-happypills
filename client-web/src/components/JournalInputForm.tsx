@@ -18,13 +18,15 @@ const StyledFormSection = styled.div`
 `;
 
 const StyledTextArea = styled(TextArea)`
-  width: 100vw;
+  width: 100%;
+  resize: none;
   border: none;
   background: none;
   padding: 12px;
 `;
 
 const StyledJournalEntryTagPill = styled(JournalEntryTagPill)`
+  display: inline-block;
   margin-right: 4px;
   &:last-child {
     margin-right: 0;

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { darken, lighten } from 'polished';
-import Slider from './TagSlider';
+import { darken } from 'polished';
 
 import { getContrastedTextColor } from '../utils/colors';
 
@@ -31,12 +30,13 @@ interface State {
   isSliderOpen: boolean;
 }
 
-interface StyledPillProps {
-  color: string;
-}
+const StyledContainer = styled.div`
+  position: relative; // So that we can position the vertical slider
+  min-width: 60px;
+`;
 
 const StyledPill = styled.button`
-position: relative; // So that we can position the vertical slider
+  width: 100%;
 
   padding: 4px;
   border-radius: 4px;
@@ -46,9 +46,9 @@ position: relative; // So that we can position the vertical slider
   border-color: ${props => darken(0.1, props.color || '')};
 `;
 
-const StyledSlider = styled(Slider)`
+const StyledSlider = styled(StyledPill)`
   position: absolute;
-  top: 50%;
+  bottom: -50%;
 `;
 
 export default class Tag extends React.Component<Props, State> {
@@ -74,14 +74,41 @@ export default class Tag extends React.Component<Props, State> {
     });
   }
 
+  private preventDefault(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+  }
+
   public render() {
+    const sliderStyle = {
+      display: this.state.isSliderOpen ? undefined : 'none'
+    };
+
     return (
-      <StyledPill className={this.props.className} color={this.props.color} onMouseEnter={this.openSlider} onMouseLeave={this.closeSlider}>
-        <span>{this.props.displayText}</span>
-        &nbsp;
-        {this.props.value ? <span>{this.props.value}</span> : null}
-        {this.state.isSliderOpen ? <StyledSlider/> : null}
-      </StyledPill>
+      <StyledContainer
+        className={this.props.className}
+        onMouseEnter={this.openSlider}
+        onMouseLeave={this.closeSlider}
+        onTouchStart={this.openSlider}
+        onTouchEnd={this.closeSlider}
+        onFocus={this.openSlider}
+        onBlur={this.closeSlider}
+      >
+        <StyledPill color={this.props.color} onClick={this.preventDefault}>
+          <span>{this.props.displayText}</span>
+          {this.props.value ? <span>{this.props.value}</span> : null}
+        </StyledPill>
+
+        <StyledSlider color={this.props.color} as="div" style={sliderStyle}>
+          {this.props.displayText}
+          <ol>
+            <li>2</li>
+            <li>1</li>
+            <li>0</li>
+            <li>-1</li>
+            <li>-2</li>
+          </ol>
+        </StyledSlider>
+      </StyledContainer>
     );
   }
 }
