@@ -1,4 +1,4 @@
-import { getLuminance, darken } from 'polished';
+import { getLuminance } from 'polished';
 
 /**
  * Helps decide whether text should be white or black, depending

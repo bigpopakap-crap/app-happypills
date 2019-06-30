@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { darken } from 'polished';
 
-import { getContrastedTextColor } from '../utils/colors';
+import Pill from './Pill';
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -30,25 +29,20 @@ interface State {
   isSliderOpen: boolean;
 }
 
-const StyledContainer = styled.div`
-  position: relative; // So that we can position the vertical slider
+const StyledPill = styled(Pill)`
   min-width: 60px;
 `;
 
-const StyledPill = styled.button`
-  width: 100%;
-
-  padding: 4px;
-  border-radius: 4px;
-
-  background-color: ${props => props.color};
-  color: ${props => getContrastedTextColor(props.color || '')}
-  border-color: ${props => darken(0.1, props.color || '')};
+const StyledLabel = styled.span.attrs(props => ({
+  isVisible: true
+}))`
+  display: ${props => (props.isVisible ? undefined : 'none')};
 `;
 
-const StyledSlider = styled(StyledPill)`
-  position: absolute;
-  bottom: -50%;
+const StyledSlider = styled.ol.attrs(props => ({
+  isVisible: true
+}))`
+  display: ${props => (props.isVisible ? undefined : 'none')};
 `;
 
 export default class Tag extends React.Component<Props, State> {
@@ -74,18 +68,11 @@ export default class Tag extends React.Component<Props, State> {
     });
   }
 
-  private preventDefault(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-  }
-
   public render() {
-    const sliderStyle = {
-      display: this.state.isSliderOpen ? undefined : 'none'
-    };
-
     return (
-      <StyledContainer
+      <StyledPill
         className={this.props.className}
+        color={this.props.color}
         onMouseEnter={this.openSlider}
         onMouseLeave={this.closeSlider}
         onTouchStart={this.openSlider}
@@ -93,22 +80,19 @@ export default class Tag extends React.Component<Props, State> {
         onFocus={this.openSlider}
         onBlur={this.closeSlider}
       >
-        <StyledPill color={this.props.color} onClick={this.preventDefault}>
-          <span>{this.props.displayText}</span>
-          {this.props.value ? <span>{this.props.value}</span> : null}
-        </StyledPill>
-
-        <StyledSlider color={this.props.color} as="div" style={sliderStyle}>
+        <StyledLabel isVisible={!this.state.isSliderOpen}>
           {this.props.displayText}
-          <ol>
-            <li>2</li>
-            <li>1</li>
-            <li>0</li>
-            <li>-1</li>
-            <li>-2</li>
-          </ol>
+          {this.props.value ? <span>({this.props.value})</span> : null}
+        </StyledLabel>
+
+        <StyledSlider isVisible={this.state.isSliderOpen}>
+          <li>2</li>
+          <li>1</li>
+          <li>0</li>
+          <li>-1</li>
+          <li>-2</li>
         </StyledSlider>
-      </StyledContainer>
+      </StyledPill>
     );
   }
 }

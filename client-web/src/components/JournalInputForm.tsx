@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import TextArea from 'react-autosize-textarea';
 
-import JournalEntryTagPill from './Tag';
+import Tag from './Tag';
 
 const MIN_ROWS = 3;
 
@@ -25,7 +25,7 @@ const StyledTextArea = styled(TextArea)`
   padding: 12px;
 `;
 
-const StyledJournalEntryTagPill = styled(JournalEntryTagPill)`
+const StyledTag = styled(Tag)`
   display: inline-block;
   margin-right: 4px;
   &:last-child {
@@ -49,10 +49,10 @@ export default class JournalInpurForm extends React.Component<{}, {}> {
         </StyledFormSection>
 
         <StyledFormSection>
-          <StyledJournalEntryTagPill displayText="Relationship" color="red" active={false} />
-          <StyledJournalEntryTagPill displayText="Hobbies" color="green" active={false} value={2} />
-          <StyledJournalEntryTagPill displayText="Weight" color="blue" active={false} />
-          <StyledJournalEntryTagPill displayText="Work" color="yellow" active={false} />
+          <StyledTag displayText="Relationship" color="#E5DF34" active={false} />
+          <StyledTag displayText="Hobbies" color="#B9D345" active={false} value={2} />
+          <StyledTag displayText="Weight" color="#825A46" active={false} />
+          <StyledTag displayText="Work" color="#A9C9A9" active={false} />
         </StyledFormSection>
       </StyledForm>
     );
