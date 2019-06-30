@@ -29,20 +29,14 @@ interface State {
   isSliderOpen: boolean;
 }
 
-const StyledPill = styled(Pill)`
+const StyledPill = styled(Pill)``;
+
+const StyledLabel = styled.span`
   min-width: 60px;
 `;
 
-const StyledLabel = styled.span.attrs(props => ({
-  isVisible: true
-}))`
-  display: ${props => (props.isVisible ? undefined : 'none')};
-`;
-
-const StyledSlider = styled.ol.attrs(props => ({
-  isVisible: true
-}))`
-  display: ${props => (props.isVisible ? undefined : 'none')};
+const StyledSlider = styled.ol`
+  min-width: 60px;
 `;
 
 export default class Tag extends React.Component<Props, State> {
@@ -69,23 +63,33 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   public render() {
+    const sliderStyle = {
+      display: this.state.isSliderOpen ? undefined : 'none'
+    };
+
     return (
-      <StyledPill
-        className={this.props.className}
-        color={this.props.color}
-        onMouseEnter={this.openSlider}
-        onMouseLeave={this.closeSlider}
-        onTouchStart={this.openSlider}
-        onTouchEnd={this.closeSlider}
-        onFocus={this.openSlider}
-        onBlur={this.closeSlider}
-      >
-        <StyledLabel isVisible={!this.state.isSliderOpen}>
+      <StyledPill className={this.props.className} color={this.props.color}>
+        <StyledLabel
+          onMouseEnter={this.openSlider}
+          onMouseLeave={this.closeSlider}
+          onTouchStart={this.openSlider}
+          onTouchEnd={this.closeSlider}
+          onFocus={this.openSlider}
+          onBlur={this.closeSlider}
+        >
           {this.props.displayText}
           {this.props.value ? <span>({this.props.value})</span> : null}
         </StyledLabel>
 
-        <StyledSlider isVisible={this.state.isSliderOpen}>
+        <StyledSlider
+          style={sliderStyle}
+          onMouseEnter={this.openSlider}
+          onMouseLeave={this.closeSlider}
+          onTouchStart={this.openSlider}
+          onTouchEnd={this.closeSlider}
+          onFocus={this.openSlider}
+          onBlur={this.closeSlider}
+        >
           <li>2</li>
           <li>1</li>
           <li>0</li>
