@@ -1,9 +1,10 @@
 import React from 'react';
 import { createGlobalStyle } from 'styled-components';
+import { Reset } from 'styled-reset';
 
 import JournalInputForm from './components/JournalInputForm';
 
-const GlobalStyle = createGlobalStyle`
+const AppGlobalStyles = createGlobalStyle`
   * {
     box-sizing: border-box;
   }
@@ -12,7 +13,8 @@ const GlobalStyle = createGlobalStyle`
 const App: React.FC = () => {
   return (
     <React.Fragment>
-      <GlobalStyle />
+      <Reset />
+      <AppGlobalStyles />
       <JournalInputForm />
     </React.Fragment>
   );

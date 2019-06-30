@@ -50,9 +50,9 @@ export default class JournalInpurForm extends React.Component<{}, {}> {
 
         <StyledFormSection>
           <StyledJournalEntryTagPill displayText="Relationship" color="red" active={false} />
-          <StyledJournalEntryTagPill displayText="Health" color="green" active={false} value={2} />
-          <StyledJournalEntryTagPill displayText="Snacking" color="blue" active={false} />
-          <StyledJournalEntryTagPill displayText="Kids" color="yellow" active={false} />
+          <StyledJournalEntryTagPill displayText="Hobbies" color="green" active={false} value={2} />
+          <StyledJournalEntryTagPill displayText="Weight" color="blue" active={false} />
+          <StyledJournalEntryTagPill displayText="Work" color="yellow" active={false} />
         </StyledFormSection>
       </StyledForm>
     );
