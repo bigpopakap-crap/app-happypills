@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { SizeMe } from 'react-sizeme';
 
+import { isNullOrUndefined } from '../utils/nulls';
+
 import Pill from './Pill';
 
 /* ******************************************************
@@ -28,6 +30,12 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
    * Scale of 1 to 5. Optional.
    */
   value?: number;
+
+  /**
+   * Handler for when the value updates
+   * @param updatedValued the updated value
+   */
+  valueUpdated: (updatedValued: number) => void;
 }
 
 interface State {
@@ -76,6 +84,7 @@ export default class Tag extends React.Component<Props, State> {
 
     this.openSlider = this.openSlider.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
+    this.valueUpdated = this.valueUpdated.bind(this);
   }
 
   public componentDidMount(): void {
@@ -95,6 +104,11 @@ export default class Tag extends React.Component<Props, State> {
     });
   }
 
+  private valueUpdated(updatedValue: number) {
+    this.props.valueUpdated(updatedValue);
+    this.closeSlider();
+  }
+
   public render() {
     return (
       <StyledContainer
@@ -108,7 +122,7 @@ export default class Tag extends React.Component<Props, State> {
       >
         <StyledLabel color={this.props.color}>
           {this.props.displayText}
-          {this.props.value ? <span>({this.props.value})</span> : null}
+          {isNullOrUndefined(this.props.value) ? null : <span>({this.props.value})</span>}
         </StyledLabel>
 
         <SizeMe monitorHeight>
@@ -119,11 +133,11 @@ export default class Tag extends React.Component<Props, State> {
               height={size.height}
             >
               <ol>
-                <li>2</li>
-                <li>1</li>
-                <li>0</li>
-                <li>-1</li>
-                <li>-2</li>
+                <li onClick={() => this.valueUpdated(2)}>2</li>
+                <li onClick={() => this.valueUpdated(1)}>1</li>
+                <li onClick={() => this.valueUpdated(0)}>0</li>
+                <li onClick={() => this.valueUpdated(-1)}>-1</li>
+                <li onClick={() => this.valueUpdated(-2)}>-2</li>
               </ol>
             </StyledSlider>
           )}
