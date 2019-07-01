@@ -168,7 +168,6 @@ export default class Tag extends React.Component<Props, State> {
         <StyledSliderOption
           color={this.props.color}
           onClick={() => this.valueUpdated(moodLevel)}
-          onTouchEnd={() => this.valueUpdated(moodLevel)}
           onMouseUp={() => this.valueUpdated(moodLevel)}
         >
           {moodLevel.emoji}
@@ -184,7 +183,6 @@ export default class Tag extends React.Component<Props, State> {
         onMouseEnter={this.delayOpenSlider}
         onMouseMove={this.delayOpenSlider}
         onMouseLeave={this.closeSlider}
-        onTouchStart={this.openSlider}
         onFocus={this.openSlider}
         onBlur={this.closeSlider}
       >
