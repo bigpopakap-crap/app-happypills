@@ -23,7 +23,8 @@
           "noEmptyLineBetween": true,
           "properties": [
             "display",
-            "visibility"
+            "visibility",
+            "opacity"
           ]
         },
         {
