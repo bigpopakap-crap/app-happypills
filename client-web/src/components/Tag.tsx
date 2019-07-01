@@ -1,8 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import styled from 'styled-components';
+import { SizeMe } from 'react-sizeme';
 
 import Pill from './Pill';
+
+/* ******************************************************
+                        PROPS AND STATE
+ ****************************************************** */
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -28,8 +32,11 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 
 interface State {
   isSliderOpen: boolean;
-  sliderHeight: number;
 }
+
+/* ******************************************************
+                      STYLED COMPONENTS
+ ****************************************************** */
 
 const StyledContainer = styled.div`
   position: relative; // For vertically centering the slider
@@ -41,23 +48,30 @@ const StyledLabel = styled(Pill)`
 
 interface StyledSliderProps {
   visible: boolean;
-  height: number;
+  height: number | null;
 }
 
 const StyledSlider = styled(Pill)<StyledSliderProps>`
   width: 100%;
   position: absolute;
-  top: ${props => `-${props.height / 2}px`};
-  display: ${props => (props.visible ? null : 'none')};
+  top: ${props => {
+    const height = props.height || 0;
+    return `calc(50% - ${height / 2}px)`;
+  }};
+  // Use visibility so that the height can be measured before the slider is shown
+  visibility: ${props => (props.visible ? null : 'hidden')};
 `;
+
+/* ******************************************************
+                      THE COMPONENT
+ ****************************************************** */
 
 export default class Tag extends React.Component<Props, State> {
   public constructor(props: Readonly<Props>) {
     super(props);
 
     this.state = {
-      isSliderOpen: false,
-      sliderHeight: 0
+      isSliderOpen: false
     };
 
     this.openSlider = this.openSlider.bind(this);
@@ -97,19 +111,23 @@ export default class Tag extends React.Component<Props, State> {
           {this.props.value ? <span>({this.props.value})</span> : null}
         </StyledLabel>
 
-        <StyledSlider
-          color={this.props.color}
-          visible={this.state.isSliderOpen}
-          height={this.state.sliderHeight}
-        >
-          <ol>
-            <li>2</li>
-            <li>1</li>
-            <li>0</li>
-            <li>-1</li>
-            <li>-2</li>
-          </ol>
-        </StyledSlider>
+        <SizeMe monitorHeight>
+          {({ size }) => (
+            <StyledSlider
+              color={this.props.color}
+              visible={this.state.isSliderOpen}
+              height={size.height}
+            >
+              <ol>
+                <li>2</li>
+                <li>1</li>
+                <li>0</li>
+                <li>-1</li>
+                <li>-2</li>
+              </ol>
+            </StyledSlider>
+          )}
+        </SizeMe>
       </StyledContainer>
     );
   }
