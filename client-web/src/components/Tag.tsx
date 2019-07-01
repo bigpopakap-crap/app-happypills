@@ -56,11 +56,12 @@ interface State {
  ****************************************************** */
 
 const StyledContainer = styled.div`
-  position: relative; // For vertically centering the slider
+  /* For vertically centering the slider */
+  position: relative;
 
   cursor: pointer;
 
-  // Disable text highlighting because it messes with the mouse drag behavior
+  /* Disable text highlighting because it messes with the mouse drag behavior */
   user-select: none;
 `;
 
@@ -83,7 +84,7 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
     return `calc(50% - ${height / 2}px)`;
   }};
 
-  // Use visibility so that the height can be measured before the slider is shown
+  /* Use visibility so that the height can be measured before the slider is shown */
   visibility: ${props => (props.visible ? null : 'hidden')};
 `;
 

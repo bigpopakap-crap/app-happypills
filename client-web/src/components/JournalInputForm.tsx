@@ -32,6 +32,7 @@ const StyledForm = styled.form`
 
 const StyledFormSection = styled.div`
   margin-bottom: 12px;
+
   &:last-child {
     margin-bottom: 0;
   }

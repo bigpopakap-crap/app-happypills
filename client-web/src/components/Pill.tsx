@@ -21,7 +21,7 @@ const StyledPill = styled.div.attrs(props => ({
   border-width: 1px;
 
   background-color: ${props => props.color};
-  color: ${props => getContrastedTextColor(props.color || '')}
+  color: ${props => getContrastedTextColor(props.color || '')};
   border-color: ${props => darken(0.1, props.color || '')};
 `;
 
