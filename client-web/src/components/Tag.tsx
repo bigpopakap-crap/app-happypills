@@ -75,7 +75,8 @@ interface StyledSliderProps {
 }
 
 const StyledSlider = styled(Pill)<StyledSliderProps>`
-  width: 100%;
+  /* Use visibility so that the height can be measured before the slider is shown */
+  visibility: ${props => (props.visible ? null : 'hidden')};
 
   position: absolute;
   z-index: 100;
@@ -84,12 +85,12 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
     return `calc(50% - ${height / 2}px)`;
   }};
 
-  /* Use visibility so that the height can be measured before the slider is shown */
-  visibility: ${props => (props.visible ? null : 'hidden')};
+  width: 100%;
 `;
 
 const StyledSliderOption = styled.li`
   padding: 4px;
+
   text-align: center;
 
   border-radius: 4px;

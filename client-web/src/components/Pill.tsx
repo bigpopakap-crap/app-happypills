@@ -17,12 +17,14 @@ const StyledPill = styled.div.attrs(props => ({
   color: props.color
 }))`
   padding: 4px;
-  border-radius: 4px;
-  border-width: 1px;
 
   background-color: ${props => props.color};
-  color: ${props => getContrastedTextColor(props.color || '')};
+
+  border-width: 1px;
+  border-radius: 4px;
   border-color: ${props => darken(0.1, props.color || '')};
+
+  color: ${props => getContrastedTextColor(props.color || '')};
 `;
 
 export default class Pill extends React.Component<Props, {}> {

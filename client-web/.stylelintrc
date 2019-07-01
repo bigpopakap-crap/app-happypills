@@ -1,8 +1,129 @@
 {
+  "syntax": "scss",
   "processors": ["stylelint-processor-styled-components"],
   "extends": [
     "stylelint-config-standard",
     "stylelint-config-styled-components"
   ],
-  "syntax": "scss"
+  "plugins": [
+    "stylelint-order"
+  ],
+  "rules": {
+    "order/order": [
+      "declarations",
+      "rules"
+    ],
+    "declaration-empty-line-before": null,
+    "declaration-colon-newline-after": null,
+    "order/properties-order": [
+      [
+        {
+          "groupName": "visibility",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "display",
+            "visibility"
+          ]
+        },
+        {
+          "groupName": "positioning",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "position",
+            "z-index",
+            "top",
+            "left",
+            "right",
+            "bottom"
+          ]
+        },
+        {
+          "groupName": "sizing",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "box-sizing",
+            "width",
+            "min-width",
+            "max-width",
+            "height",
+            "min-height",
+            "max-height",
+            "margin",
+            "margin-top",
+            "margin-right",
+            "margin-left",
+            "margin-bottom",
+            "padding",
+            "padding-top",
+            "padding-right",
+            "padding-left",
+            "padding-bottom"
+          ]
+        },
+        {
+          "groupName": "font",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "line-height",
+            "text-align",
+            "vertical-align",
+            "font",
+            "font-size",
+            "font-weight",
+            "text-decoration"
+          ]
+        },
+        {
+          "groupName": "wrapping",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "overflow",
+            "overflow-x",
+            "overflow-y",
+            "text-overflow",
+            "whitespace"
+          ]
+        },
+        {
+          "groupName": "background",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "background",
+            "background-color",
+            "background-position"
+          ]
+        },
+        {
+          "groupName": "border",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "border",
+            "border-width",
+            "border-radius",
+            "border-style",
+            "border-color"
+          ]
+        },
+        {
+          "groupName": "font-color",
+          "emptyLineBefore": "always",
+          "noEmptyLineBetween": true,
+          "properties": [
+            "color"
+          ]
+        }
+      ],
+      {
+        "unspecified": "bottomAlphabetical",
+        "emptyLineBeforeUnspecified": "always"
+      }
+    ]
+  }
 }

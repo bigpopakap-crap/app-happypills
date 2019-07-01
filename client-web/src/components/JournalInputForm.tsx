@@ -40,10 +40,13 @@ const StyledFormSection = styled.div`
 
 const StyledTextArea = styled(TextArea)`
   width: 100%;
-  resize: none;
-  border: none;
-  background: none;
   padding: 12px;
+
+  background: none;
+
+  border: none;
+
+  resize: none;
 `;
 
 const StyledTag = styled(Tag)`
