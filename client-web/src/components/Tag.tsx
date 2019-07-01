@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { SizeMe } from 'react-sizeme';
+import { darken } from 'polished';
 
 import { isNullOrUndefined } from '../utils/nulls';
 
@@ -61,13 +62,29 @@ interface StyledSliderProps {
 
 const StyledSlider = styled(Pill)<StyledSliderProps>`
   width: 100%;
+
   position: absolute;
   top: ${props => {
     const height = props.height || 0;
     return `calc(50% - ${height / 2}px)`;
   }};
+
   // Use visibility so that the height can be measured before the slider is shown
   visibility: ${props => (props.visible ? null : 'hidden')};
+
+  // Disable text highlighting because it messes with the mouse drag behavior
+  user-select: none;
+`;
+
+const StyledSliderOption = styled.li`
+  // Disable text highlighting because it messes with the mouse drag behavior
+  user-select: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: ${props => darken(0.1, props.color || '')};
+  }
 `;
 
 /* ******************************************************
@@ -112,22 +129,29 @@ export default class Tag extends React.Component<Props, State> {
   public render() {
     const listOption = (value: number) => {
       return (
-        <li onClick={() => this.valueUpdated(value)} onTouchEnd={() => this.valueUpdated(value)}>
+        <StyledSliderOption
+          draggable={false}
+          color={this.props.color}
+          onClick={() => this.valueUpdated(value)}
+          onTouchEnd={() => this.valueUpdated(value)}
+          onMouseUp={() => this.valueUpdated(value)}
+        >
           {value}
-        </li>
+        </StyledSliderOption>
       );
     };
 
     return (
       <StyledContainer
         className={this.props.className}
-        onMouseEnter={this.openSlider}
+        draggable={false}
+        onMouseDown={this.openSlider}
         onMouseLeave={this.closeSlider}
         onTouchStart={this.openSlider}
         onFocus={this.openSlider}
         onBlur={this.closeSlider}
       >
-        <StyledLabel color={this.props.color}>
+        <StyledLabel color={this.props.color} draggable={false}>
           {this.props.displayText}
           {isNullOrUndefined(this.props.value) ? null : <span>({this.props.value})</span>}
         </StyledLabel>
@@ -138,8 +162,9 @@ export default class Tag extends React.Component<Props, State> {
               color={this.props.color}
               visible={this.state.isSliderOpen}
               height={size.height}
+              draggable={false}
             >
-              <ol>
+              <ol draggable={false}>
                 {listOption(2)}
                 {listOption(1)}
                 {listOption(0)}
