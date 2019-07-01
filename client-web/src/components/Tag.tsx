@@ -91,6 +91,8 @@ const StyledSliderOption = styled.li`
   padding: 4px;
   text-align: center;
 
+  border-radius: 4px;
+
   &:hover,
   &:focus,
   &:active {
