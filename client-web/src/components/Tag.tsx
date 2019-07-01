@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 import Pill from './Pill';
@@ -27,27 +28,45 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 
 interface State {
   isSliderOpen: boolean;
+  sliderHeight: number;
 }
 
-const StyledPill = styled(Pill)``;
+const StyledContainer = styled.div`
+  position: relative; // For vertically centering the slider
+`;
 
-const StyledLabel = styled.span`
+const StyledLabel = styled(Pill)`
   min-width: 60px;
 `;
 
-const StyledSlider = styled.ol`
-  min-width: 60px;
+interface StyledSliderProps {
+  visible: boolean;
+  height: number;
+}
+
+const StyledSlider = styled(Pill)<StyledSliderProps>`
+  width: 100%;
+  position: absolute;
+  top: ${props => `-${props.height / 2}px`};
+  display: ${props => (props.visible ? null : 'none')};
 `;
 
 export default class Tag extends React.Component<Props, State> {
   public constructor(props: Readonly<Props>) {
     super(props);
+
     this.state = {
-      isSliderOpen: false
+      isSliderOpen: false,
+      sliderHeight: 0
     };
 
     this.openSlider = this.openSlider.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
+  }
+
+  public componentDidMount(): void {
+    // Measure the slider height once. No need to track changes,
+    // because its content is static
   }
 
   private openSlider() {
@@ -63,40 +82,35 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   public render() {
-    const sliderStyle = {
-      display: this.state.isSliderOpen ? undefined : 'none'
-    };
-
     return (
-      <StyledPill className={this.props.className} color={this.props.color}>
-        <StyledLabel
-          onMouseEnter={this.openSlider}
-          onMouseLeave={this.closeSlider}
-          onTouchStart={this.openSlider}
-          onTouchEnd={this.closeSlider}
-          onFocus={this.openSlider}
-          onBlur={this.closeSlider}
-        >
+      <StyledContainer
+        className={this.props.className}
+        onMouseEnter={this.openSlider}
+        onMouseLeave={this.closeSlider}
+        onTouchStart={this.openSlider}
+        onTouchEnd={this.closeSlider}
+        onFocus={this.openSlider}
+        onBlur={this.closeSlider}
+      >
+        <StyledLabel color={this.props.color}>
           {this.props.displayText}
           {this.props.value ? <span>({this.props.value})</span> : null}
         </StyledLabel>
 
         <StyledSlider
-          style={sliderStyle}
-          onMouseEnter={this.openSlider}
-          onMouseLeave={this.closeSlider}
-          onTouchStart={this.openSlider}
-          onTouchEnd={this.closeSlider}
-          onFocus={this.openSlider}
-          onBlur={this.closeSlider}
+          color={this.props.color}
+          visible={this.state.isSliderOpen}
+          height={this.state.sliderHeight}
         >
-          <li>2</li>
-          <li>1</li>
-          <li>0</li>
-          <li>-1</li>
-          <li>-2</li>
+          <ol>
+            <li>2</li>
+            <li>1</li>
+            <li>0</li>
+            <li>-1</li>
+            <li>-2</li>
+          </ol>
         </StyledSlider>
-      </StyledPill>
+      </StyledContainer>
     );
   }
 }
