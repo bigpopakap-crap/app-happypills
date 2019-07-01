@@ -15,7 +15,7 @@ import {
   STRONG_NEGATIVE
 } from 'utils/tags';
 
-const DELAY_TOLERANCE_MILLIS = 1000;
+const DELAY_TOLERANCE_MILLIS = 250;
 
 /* ******************************************************
                         PROPS AND STATE
