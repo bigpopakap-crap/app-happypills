@@ -9605,6 +9605,11 @@ trough@^1.0.0:
   resolved "https://registry.yarnpkg.com/trough/-/trough-1.0.4.tgz#3b52b1f13924f460c3fbfd0df69b587dbcbc762e"
   integrity sha512-tdzBRDGWcI1OpPVmChbdSKhvSVurznZ8X36AYURAcl+0o2ldlCY2XPzyXNNxwJwwyIU+rIglTCG4kxtNKBQH7Q==
 
+ts-null-or-undefined@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/ts-null-or-undefined/-/ts-null-or-undefined-0.0.5.tgz#659cbdd3e3fbe8d48fc856a97834cf86a3bb77e5"
+  integrity sha1-ZZy90+P76NSPyFapeDTPhqO7d+U=
+
 ts-pnp@1.1.2, ts-pnp@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.1.2.tgz#be8e4bfce5d00f0f58e0666a82260c34a57af552"

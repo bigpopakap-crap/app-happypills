@@ -2,10 +2,18 @@ import React from 'react';
 import styled from 'styled-components';
 import { SizeMe } from 'react-sizeme';
 import { darken } from 'polished';
-
-import { isNullOrUndefined } from '../utils/nulls';
+import { ObjectUtil } from 'ts-null-or-undefined';
 
 import Pill from './Pill';
+
+import {
+  MoodLevel,
+  STRONG_POSITIVE,
+  POSITIVE,
+  NEUTRAL,
+  NEGATIVE,
+  STRONG_NEGATIVE
+} from 'utils/tags';
 
 /* ******************************************************
                         PROPS AND STATE
@@ -30,13 +38,13 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Scale of 1 to 5. Optional.
    */
-  value?: number;
+  value: MoodLevel;
 
   /**
    * Handler for when the value updates
    * @param updatedValued the updated value
    */
-  valueUpdated: (updatedValued: number) => void;
+  valueUpdated: (updatedValued: MoodLevel) => void;
 }
 
 interface State {
@@ -49,6 +57,9 @@ interface State {
 
 const StyledContainer = styled.div`
   position: relative; // For vertically centering the slider
+
+  // Disable text highlighting because it messes with the mouse drag behavior
+  user-select: none;
 `;
 
 const StyledLabel = styled(Pill)`
@@ -71,19 +82,16 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
 
   // Use visibility so that the height can be measured before the slider is shown
   visibility: ${props => (props.visible ? null : 'hidden')};
-
-  // Disable text highlighting because it messes with the mouse drag behavior
-  user-select: none;
 `;
 
 const StyledSliderOption = styled.li`
-  // Disable text highlighting because it messes with the mouse drag behavior
-  user-select: none;
+  padding: 4px;
+  text-align: center;
 
   &:hover,
   &:focus,
   &:active {
-    background-color: ${props => darken(0.1, props.color || '')};
+    background-color: ${props => darken(0.2, props.color || '')};
   }
 `;
 
@@ -104,11 +112,6 @@ export default class Tag extends React.Component<Props, State> {
     this.valueUpdated = this.valueUpdated.bind(this);
   }
 
-  public componentDidMount(): void {
-    // Measure the slider height once. No need to track changes,
-    // because its content is static
-  }
-
   private openSlider() {
     this.setState({
       isSliderOpen: true
@@ -121,22 +124,21 @@ export default class Tag extends React.Component<Props, State> {
     });
   }
 
-  private valueUpdated(updatedValue: number) {
+  private valueUpdated(updatedValue: MoodLevel) {
     this.props.valueUpdated(updatedValue);
     this.closeSlider();
   }
 
   public render() {
-    const listOption = (value: number) => {
+    const listOption = (moodLevel: MoodLevel) => {
       return (
         <StyledSliderOption
-          draggable={false}
           color={this.props.color}
-          onClick={() => this.valueUpdated(value)}
-          onTouchEnd={() => this.valueUpdated(value)}
-          onMouseUp={() => this.valueUpdated(value)}
+          onClick={() => this.valueUpdated(moodLevel)}
+          onTouchEnd={() => this.valueUpdated(moodLevel)}
+          onMouseUp={() => this.valueUpdated(moodLevel)}
         >
-          {value}
+          {moodLevel.emoji}
         </StyledSliderOption>
       );
     };
@@ -151,9 +153,9 @@ export default class Tag extends React.Component<Props, State> {
         onFocus={this.openSlider}
         onBlur={this.closeSlider}
       >
-        <StyledLabel color={this.props.color} draggable={false}>
+        <StyledLabel color={this.props.color}>
           {this.props.displayText}
-          {isNullOrUndefined(this.props.value) ? null : <span>({this.props.value})</span>}
+          {ObjectUtil.isNullOrUndefined(this.props.value) ? null : this.props.value.emoji}
         </StyledLabel>
 
         <SizeMe monitorHeight>
@@ -162,14 +164,13 @@ export default class Tag extends React.Component<Props, State> {
               color={this.props.color}
               visible={this.state.isSliderOpen}
               height={size.height}
-              draggable={false}
             >
-              <ol draggable={false}>
-                {listOption(2)}
-                {listOption(1)}
-                {listOption(0)}
-                {listOption(-1)}
-                {listOption(-2)}
+              <ol>
+                {listOption(STRONG_POSITIVE)}
+                {listOption(POSITIVE)}
+                {listOption(NEUTRAL)}
+                {listOption(NEGATIVE)}
+                {listOption(STRONG_NEGATIVE)}
               </ol>
             </StyledSlider>
           )}

@@ -4,6 +4,8 @@ import TextArea from 'react-autosize-textarea';
 
 import Tag from './Tag';
 
+import { MoodLevel, NONE } from 'utils/tags';
+
 const MIN_ROWS = 3;
 
 /* ******************************************************
@@ -13,7 +15,7 @@ const MIN_ROWS = 3;
 interface TagAndValue {
   readonly displayText: string;
   readonly color: string;
-  value?: number;
+  value: MoodLevel;
 }
 
 interface State {
@@ -56,17 +58,17 @@ export default class JournalInpurForm extends React.Component<{}, State> {
     super(props);
     this.state = {
       tags: [
-        { displayText: 'Relationship', color: '#E5DF34' },
-        { displayText: 'Hobbies', color: '#B9D345' },
-        { displayText: 'Weight', color: '#825A46' },
-        { displayText: 'Work', color: '#A9C9A9' }
+        { displayText: 'Relationship', color: '#E5DF34', value: NONE },
+        { displayText: 'Hobbies', color: '#B9D345', value: NONE },
+        { displayText: 'Weight', color: '#825A46', value: NONE },
+        { displayText: 'Work', color: '#A9C9A9', value: NONE }
       ]
     };
 
     this.updateTagValue = this.updateTagValue.bind(this);
   }
 
-  private updateTagValue(displayText: string, updatedValue: number) {
+  private updateTagValue(displayText: string, updatedValue: MoodLevel) {
     console.log(`Update ${displayText} to ${updatedValue}`);
 
     this.setState(prevState => {
