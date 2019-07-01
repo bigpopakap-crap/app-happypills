@@ -15,6 +15,8 @@ import {
   STRONG_NEGATIVE
 } from 'utils/tags';
 
+const DELAY_TOLERANCE_MILLIS = 1000;
+
 /* ******************************************************
                         PROPS AND STATE
  ****************************************************** */
@@ -96,8 +98,7 @@ const StyledSliderOption = styled.li`
   border-radius: 4px;
 
   &:hover,
-  &:focus,
-  &:active {
+  &:focus {
     background-color: ${props => darken(0.2, props.color || '')};
   }
 `;
@@ -107,6 +108,8 @@ const StyledSliderOption = styled.li`
  ****************************************************** */
 
 export default class Tag extends React.Component<Props, State> {
+  private openSliderTimer: number | null;
+
   public constructor(props: Readonly<Props>) {
     super(props);
 
@@ -114,7 +117,11 @@ export default class Tag extends React.Component<Props, State> {
       isSliderOpen: false
     };
 
+    this.openSliderTimer = null;
+
     this.openSlider = this.openSlider.bind(this);
+    this.delayOpenSlider = this.delayOpenSlider.bind(this);
+    this.clearDelayOpenSlider = this.clearDelayOpenSlider.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
     this.valueUpdated = this.valueUpdated.bind(this);
   }
@@ -125,7 +132,26 @@ export default class Tag extends React.Component<Props, State> {
     });
   }
 
+  private delayOpenSlider() {
+    if (!this.state.isSliderOpen) {
+      this.clearDelayOpenSlider();
+
+      this.openSliderTimer = setTimeout(() => {
+        this.openSlider();
+      }, DELAY_TOLERANCE_MILLIS);
+    }
+  }
+
+  private clearDelayOpenSlider() {
+    if (!ObjectUtil.isNullOrUndefined(this.openSliderTimer)) {
+      clearTimeout(this.openSliderTimer);
+    }
+  }
+
   private closeSlider() {
+    // If we were going to open the slider, cancel that action.
+    this.clearDelayOpenSlider();
+
     this.setState({
       isSliderOpen: false
     });
@@ -155,6 +181,8 @@ export default class Tag extends React.Component<Props, State> {
         className={this.props.className}
         draggable={false}
         onMouseDown={this.openSlider}
+        onMouseEnter={this.delayOpenSlider}
+        onMouseMove={this.delayOpenSlider}
         onMouseLeave={this.closeSlider}
         onTouchStart={this.openSlider}
         onFocus={this.openSlider}
