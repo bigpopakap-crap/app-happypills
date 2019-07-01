@@ -67,6 +67,8 @@ export default class JournalInpurForm extends React.Component<{}, State> {
   }
 
   private updateTagValue(displayText: string, updatedValue: number) {
+    console.log(`Update ${displayText} to ${updatedValue}`);
+
     this.setState(prevState => {
       return {
         // Map all previous tags and their values

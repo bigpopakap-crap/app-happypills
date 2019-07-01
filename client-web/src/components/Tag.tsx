@@ -112,11 +112,7 @@ export default class Tag extends React.Component<Props, State> {
   public render() {
     const listOption = (value: number) => {
       return (
-        <li
-          onClick={() => this.valueUpdated(value)}
-          onMouseUp={() => this.valueUpdated(value)}
-          onTouchEnd={() => this.valueUpdated(value)}
-        >
+        <li onClick={() => this.valueUpdated(value)} onTouchEnd={() => this.valueUpdated(value)}>
           {value}
         </li>
       );
@@ -128,7 +124,6 @@ export default class Tag extends React.Component<Props, State> {
         onMouseEnter={this.openSlider}
         onMouseLeave={this.closeSlider}
         onTouchStart={this.openSlider}
-        onTouchEnd={this.closeSlider}
         onFocus={this.openSlider}
         onBlur={this.closeSlider}
       >
