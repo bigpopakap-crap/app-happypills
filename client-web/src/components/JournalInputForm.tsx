@@ -47,7 +47,10 @@ const StyledTextArea = styled(TextArea)`
 
 const StyledTag = styled(Tag)`
   display: inline-block;
+
   margin-right: 4px;
+  margin-bottom: 4px;
+
   &:last-child {
     margin-right: 0;
   }
@@ -69,8 +72,6 @@ export default class JournalInpurForm extends React.Component<{}, State> {
   }
 
   private updateTagValue(displayText: string, updatedValue: MoodLevel) {
-    console.log(`Update ${displayText} to ${updatedValue}`);
-
     this.setState(prevState => {
       return {
         // Map all previous tags and their values

@@ -58,6 +58,8 @@ interface State {
 const StyledContainer = styled.div`
   position: relative; // For vertically centering the slider
 
+  cursor: pointer;
+
   // Disable text highlighting because it messes with the mouse drag behavior
   user-select: none;
 `;
@@ -75,6 +77,7 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
   width: 100%;
 
   position: absolute;
+  z-index: 100;
   top: ${props => {
     const height = props.height || 0;
     return `calc(50% - ${height / 2}px)`;
