@@ -110,6 +110,18 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   public render() {
+    const listOption = (value: number) => {
+      return (
+        <li
+          onClick={() => this.valueUpdated(value)}
+          onMouseUp={() => this.valueUpdated(value)}
+          onTouchEnd={() => this.valueUpdated(value)}
+        >
+          {value}
+        </li>
+      );
+    };
+
     return (
       <StyledContainer
         className={this.props.className}
@@ -133,11 +145,11 @@ export default class Tag extends React.Component<Props, State> {
               height={size.height}
             >
               <ol>
-                <li onClick={() => this.valueUpdated(2)}>2</li>
-                <li onClick={() => this.valueUpdated(1)}>1</li>
-                <li onClick={() => this.valueUpdated(0)}>0</li>
-                <li onClick={() => this.valueUpdated(-1)}>-1</li>
-                <li onClick={() => this.valueUpdated(-2)}>-2</li>
+                {listOption(2)}
+                {listOption(1)}
+                {listOption(0)}
+                {listOption(-1)}
+                {listOption(-2)}
               </ol>
             </StyledSlider>
           )}
