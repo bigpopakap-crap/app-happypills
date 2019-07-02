@@ -15,8 +15,7 @@ import {
   STRONG_NEGATIVE
 } from 'utils/tags';
 
-const DELAY_TOLERANCE_MILLIS = 250;
-const OPACITY_ANIMATION_DURATION_MILLIS = 150;
+const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
 
 /* ******************************************************
                         PROPS AND STATE
@@ -50,8 +49,10 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   valueUpdated: (updatedValued: MoodLevel) => void;
 }
 
+type SliderState = 'closed' | 'opening' | 'open' | 'closing';
+
 interface State {
-  isSliderOpen: boolean;
+  sliderState: SliderState;
 }
 
 /* ******************************************************
@@ -73,7 +74,7 @@ const StyledLabel = styled(Pill)`
 `;
 
 interface StyledSliderProps {
-  visible: boolean;
+  state: SliderState;
   height: number | null;
 }
 
@@ -81,7 +82,21 @@ interface StyledSliderProps {
 const StyledSlider = styled(Pill)<StyledSliderProps>`
   /* Use visibility because we want to be able to calculate the rendered height
      of the slider before it is shown. */
-  visibility: ${props => (props.visible ? null : 'hidden')};
+  visibility: ${props => {
+    switch (props.state) {
+      case 'closed':
+        return 'hidden';
+      case 'opening':
+        return null;
+      case 'open':
+        return null;
+      case 'closing':
+        return null;
+      default:
+        console.warn(`Unexpected sliderState=${props.state}`);
+        return null;
+    }
+  }};
 
   position: absolute;
   z-index: 100;
@@ -91,8 +106,6 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
   }};
 
   width: 100%;
-
-  transition: opacity ${OPACITY_ANIMATION_DURATION_MILLIS}ms ease-in-out;
 `;
 
 const StyledSliderOption = styled.li`
@@ -118,7 +131,7 @@ export default class Tag extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isSliderOpen: false
+      sliderState: 'closed'
     };
 
     this.openSliderTimer = null;
@@ -132,17 +145,17 @@ export default class Tag extends React.Component<Props, State> {
 
   private openSlider() {
     this.setState({
-      isSliderOpen: true
+      sliderState: 'open'
     });
   }
 
   private delayOpenSlider() {
-    if (!this.state.isSliderOpen) {
+    if (!['opening', 'open'].includes(this.state.sliderState)) {
       this.clearDelayOpenSlider();
 
       this.openSliderTimer = setTimeout(() => {
         this.openSlider();
-      }, DELAY_TOLERANCE_MILLIS);
+      }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
     }
   }
 
@@ -157,7 +170,7 @@ export default class Tag extends React.Component<Props, State> {
     this.clearDelayOpenSlider();
 
     this.setState({
-      isSliderOpen: false
+      sliderState: 'closed'
     });
   }
 
@@ -197,7 +210,7 @@ export default class Tag extends React.Component<Props, State> {
           {({ size }) => (
             <StyledSlider
               color={this.props.color}
-              visible={this.state.isSliderOpen}
+              state={this.state.sliderState}
               height={size.height}
             >
               <ol>
