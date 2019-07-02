@@ -16,6 +16,7 @@ import {
 } from 'utils/tags';
 
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
+const SLIDER_OPEN_ANIMATION_DURATION_MILLIS = 150;
 
 /* ******************************************************
                         PROPS AND STATE
@@ -106,6 +107,24 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
   }};
 
   width: 100%;
+
+  opacity: ${props => {
+    switch (props.state) {
+      case 'closed':
+        return 0;
+      case 'opening':
+        return 1;
+      case 'open':
+        return 1;
+      case 'closing':
+        return 0;
+      default:
+        console.warn(`Unexpected sliderState=${props.state}`);
+        return 1;
+    }
+  }};
+
+  transition: opacity ${SLIDER_OPEN_ANIMATION_DURATION_MILLIS}ms ease-in-out;
 `;
 
 const StyledSliderOption = styled.li`
@@ -124,8 +143,12 @@ const StyledSliderOption = styled.li`
                       THE COMPONENT
  ****************************************************** */
 
+type Timer = number | null;
+
 export default class Tag extends React.Component<Props, State> {
-  private openSliderTimer: number | null;
+  private delayOpenSliderTimer: Timer;
+  private animateOpenSliderTimer: Timer;
+  private animateCloseSliderTimer: Timer;
 
   public constructor(props: Readonly<Props>) {
     super(props);
@@ -134,49 +157,80 @@ export default class Tag extends React.Component<Props, State> {
       sliderState: 'closed'
     };
 
-    this.openSliderTimer = null;
+    this.delayOpenSliderTimer = null;
+    this.animateOpenSliderTimer = null;
+    this.animateCloseSliderTimer = null;
 
     this.openSlider = this.openSlider.bind(this);
     this.delayOpenSlider = this.delayOpenSlider.bind(this);
-    this.clearDelayOpenSlider = this.clearDelayOpenSlider.bind(this);
+    this.clearTimer = this.clearTimer.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
     this.valueUpdated = this.valueUpdated.bind(this);
   }
 
   private openSlider() {
-    this.setState({
-      sliderState: 'open'
-    });
+    if (!['opening', 'open'].includes(this.state.sliderState)) {
+      // If the slider was closing, cancel that action.
+      this.clearTimer(this.animateCloseSliderTimer);
+
+      // If we were going to open the slider later, cancel that action because
+      // we are doing it now
+      this.clearTimer(this.delayOpenSliderTimer);
+
+      this.setState({
+        sliderState: 'opening'
+      });
+
+      this.animateOpenSliderTimer = setTimeout(() => {
+        this.setState({
+          sliderState: 'open'
+        });
+
+        this.animateOpenSliderTimer = null;
+      }, SLIDER_OPEN_ANIMATION_DURATION_MILLIS);
+    }
   }
 
   private delayOpenSlider() {
     if (!['opening', 'open'].includes(this.state.sliderState)) {
-      this.clearDelayOpenSlider();
+      this.clearTimer(this.delayOpenSliderTimer);
 
-      this.openSliderTimer = setTimeout(() => {
+      this.delayOpenSliderTimer = setTimeout(() => {
         this.openSlider();
+        this.delayOpenSliderTimer = null;
       }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
     }
   }
 
-  private clearDelayOpenSlider() {
-    if (!ObjectUtil.isNullOrUndefined(this.openSliderTimer)) {
-      clearTimeout(this.openSliderTimer);
-    }
-  }
-
   private closeSlider() {
-    // If we were going to open the slider, cancel that action.
-    this.clearDelayOpenSlider();
+    if (!['closing', 'closed'].includes(this.state.sliderState)) {
+      // If we were going to open the slider, cancel that action.
+      this.clearTimer(this.animateOpenSliderTimer);
+      this.clearTimer(this.delayOpenSliderTimer);
 
-    this.setState({
-      sliderState: 'closed'
-    });
+      this.setState({
+        sliderState: 'closing'
+      });
+
+      this.animateCloseSliderTimer = setTimeout(() => {
+        this.setState({
+          sliderState: 'closed'
+        });
+
+        this.animateCloseSliderTimer = null;
+      }, SLIDER_OPEN_ANIMATION_DURATION_MILLIS);
+    }
   }
 
   private valueUpdated(updatedValue: MoodLevel) {
     this.props.valueUpdated(updatedValue);
     this.closeSlider();
+  }
+
+  private clearTimer(timer: Timer) {
+    if (!ObjectUtil.isNullOrUndefined(timer)) {
+      clearTimeout(timer);
+    }
   }
 
   public render() {
