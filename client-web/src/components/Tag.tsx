@@ -79,9 +79,9 @@ interface StyledSliderProps {
 
 // TODO need to add aria-hidden when this thing is hidden
 const StyledSlider = styled(Pill)<StyledSliderProps>`
-  /* Use opacity so that the height can be measured before the slider is shown.
-     We don't have to worry about it taking up DOM space, because it is position: absolute */
-  opacity: ${props => (props.visible ? '1' : '0')};
+  /* Use visibility because we want to be able to calculate the rendered height
+     of the slider before it is shown. */
+  visibility: ${props => (props.visible ? null : 'hidden')};
 
   position: absolute;
   z-index: 100;
@@ -102,8 +102,7 @@ const StyledSliderOption = styled.li`
 
   border-radius: 4px;
 
-  &:hover,
-  &:focus {
+  &:hover {
     background-color: ${props => darken(0.2, props.color || '')};
   }
 `;
@@ -184,12 +183,10 @@ export default class Tag extends React.Component<Props, State> {
       <StyledContainer
         className={this.props.className}
         draggable={false}
+        onMouseLeave={this.closeSlider}
         onMouseDown={this.openSlider}
         onMouseEnter={this.delayOpenSlider}
         onMouseMove={this.delayOpenSlider}
-        onMouseLeave={this.closeSlider}
-        onFocus={this.openSlider}
-        onBlur={this.closeSlider}
       >
         <StyledLabel color={this.props.color}>
           {this.props.displayText}
