@@ -82,6 +82,7 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
   /* Use visibility because we want to be able to calculate the rendered height
      of the slider before it is shown. */
   visibility: ${props => (props.visible ? null : 'hidden')};
+  opacity: ${props => (props.visible ? 1 : 0)};
 
   position: absolute;
   z-index: 100;
@@ -91,6 +92,8 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
   }};
 
   width: 100%;
+
+  transition: opacity ${SLIDER_OPEN_ANIMATION_DURATION_MILLIS}ms ease-in-out;
 `;
 
 const StyledSliderOption = styled.li`
