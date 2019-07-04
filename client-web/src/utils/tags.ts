@@ -1,11 +1,11 @@
 export interface MoodLevel {
   value: 2 | 1 | 0 | -1 | -2;
-  emoji: '😀' | '🙂' | '😐' | '🙁' | '😞' | '⚪';
+  emoji: '😀' | '🙂' | '😐' | '🙁' | '😞' | '😶';
 }
 
 export const NONE: MoodLevel = {
   value: 0,
-  emoji: '⚪'
+  emoji: '😶'
 };
 
 export const STRONG_POSITIVE: MoodLevel = {
