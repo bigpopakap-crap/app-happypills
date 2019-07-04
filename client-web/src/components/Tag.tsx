@@ -14,6 +14,7 @@ import {
   NEGATIVE,
   STRONG_NEGATIVE
 } from 'utils/tags';
+import { FuseHandle, cancelFuse, setFuse } from 'utils/fuse';
 
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
 const SLIDER_OPEN_ANIMATION_DURATION_MILLIS = 150;
@@ -115,7 +116,7 @@ const StyledSliderOption = styled.li`
 type Timer = number | null;
 
 export default class Tag extends React.Component<Props, State> {
-  private delayOpenSliderTimer: Timer;
+  private openSliderFuse: FuseHandle | null;
 
   public constructor(props: Readonly<Props>) {
     super(props);
@@ -124,11 +125,10 @@ export default class Tag extends React.Component<Props, State> {
       isSliderOpen: false
     };
 
-    this.delayOpenSliderTimer = null;
+    this.openSliderFuse = null;
 
     this.openSlider = this.openSlider.bind(this);
     this.delayOpenSlider = this.delayOpenSlider.bind(this);
-    this.clearTimer = this.clearTimer.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
     this.valueUpdated = this.valueUpdated.bind(this);
   }
@@ -136,7 +136,7 @@ export default class Tag extends React.Component<Props, State> {
   private openSlider() {
     // If we were going to open the slider, cancel it because
     // we are opening it immediately instead
-    this.clearTimer(this.delayOpenSliderTimer);
+    cancelFuse(this.openSliderFuse);
 
     this.setState({
       isSliderOpen: true
@@ -144,18 +144,18 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   private delayOpenSlider() {
-    this.clearTimer(this.delayOpenSliderTimer);
+    cancelFuse(this.openSliderFuse);
 
-    this.delayOpenSliderTimer = setTimeout(() => {
+    this.openSliderFuse = setFuse(() => {
       this.openSlider();
-      this.delayOpenSliderTimer = null;
+      this.openSliderFuse = null;
     }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
   }
 
   private closeSlider() {
     // If we were going to open the slider, cancel it because
     // we are closing it now
-    this.clearTimer(this.delayOpenSliderTimer);
+    cancelFuse(this.openSliderFuse);
 
     this.setState({
       isSliderOpen: false
@@ -165,12 +165,6 @@ export default class Tag extends React.Component<Props, State> {
   private valueUpdated(updatedValue: MoodLevel) {
     this.props.valueUpdated(updatedValue);
     this.closeSlider();
-  }
-
-  private clearTimer(timer: Timer) {
-    if (!ObjectUtil.isNullOrUndefined(timer)) {
-      clearTimeout(timer);
-    }
   }
 
   public render() {
