@@ -103,6 +103,7 @@ const StyledSliderOption = styled.li`
   padding: 4px;
 
   text-align: center;
+  font-size: 24px;
 
   border-radius: 4px;
 
