@@ -1,10 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { SizeMe } from 'react-sizeme';
-import { darken } from 'polished';
-import { ObjectUtil } from 'ts-null-or-undefined';
 
 import Pill from './Pill';
+import SelectSlider from './SelectSlider';
 
 import {
   MoodLevel,
@@ -14,21 +12,11 @@ import {
   NEGATIVE,
   STRONG_NEGATIVE
 } from 'utils/tags';
-import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
-
-const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
-const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
 
 /*
  * TODO
- * - add delay after opening before selections are allowed
  * - add theme variables to CSS (border-radius, etc.)
- * - split up selection control from actual content
  * - add animation when emoji is selected
- * - add keyboard controls
- * - add aria attributes and accessibility
- * - add mobile/touch controls
- * - add tests
  */
 
 /* ******************************************************
@@ -63,198 +51,67 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   valueUpdated: (updatedValued: MoodLevel) => void;
 }
 
-type SliderState = 'open' | 'closing' | 'closed';
+/* ******************************************************
+                      HELPER COMPONENTS
+ ****************************************************** */
 
-interface State {
-  sliderState: SliderState;
+interface SelectSliderMoodLevelOption {
+  key: string;
+  moodLevel: MoodLevel;
 }
+
+const SELECT_SLIDER_MOOD_LEVEL_OPTIONS = [
+  STRONG_POSITIVE,
+  POSITIVE,
+  NEUTRAL,
+  NEGATIVE,
+  STRONG_NEGATIVE
+].map(moodLevel => ({ key: `${moodLevel.value}`, moodLevel }));
+
+class MoodLevelSelectSlider extends SelectSlider<SelectSliderMoodLevelOption> {}
 
 /* ******************************************************
                       STYLED COMPONENTS
  ****************************************************** */
 
-const StyledContainer = styled.div`
-  /* For vertically centering the slider */
-  position: relative;
-
-  cursor: pointer;
-
-  /* Disable text highlighting because it messes with the mouse drag behavior */
-  user-select: none;
-`;
-
 const StyledLabel = styled(Pill)`
   min-width: 60px;
-`;
-
-interface StyledSliderProps {
-  state: SliderState;
-  height: number | null;
-}
-
-// TODO need to add aria-hidden when this thing is hidden
-const StyledSlider = styled(Pill)<StyledSliderProps>`
-  /* Use visibility because we want to be able to calculate the rendered height
-     of the slider before it is shown. */
-  visibility: ${props => (props.state === 'closed' ? 'hidden' : null)};
-  opacity: ${props => (props.state === 'open' ? 1 : 0)};
-
-  position: absolute;
-  z-index: 100;
-  top: ${props => {
-    const height = props.height || 0;
-    return `calc(50% - ${height / 2}px)`;
-  }};
-
-  width: 100%;
-
-  transition: opacity ${SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS}ms ease-in-out;
-`;
-
-const StyledSliderOption = styled.li`
-  padding: 4px;
-
-  text-align: center;
-  font-size: 24px;
-
-  border-radius: 4px;
-
-  &:hover {
-    background-color: ${props => darken(0.2, props.color || '')};
-  }
 `;
 
 /* ******************************************************
                       THE COMPONENT
  ****************************************************** */
 
-type Timer = number | null;
-
-export default class Tag extends React.Component<Props, State> {
-  private openSliderFuse: FuseHandle | null;
-  private closeSliderFuse: FuseHandle | null;
-
-  public constructor(props: Readonly<Props>) {
+export default class Tag extends React.Component<Props, {}> {
+  public constructor(props: Props) {
     super(props);
 
-    this.state = {
-      sliderState: 'closed'
-    };
-
-    this.openSliderFuse = null;
-    this.closeSliderFuse = null;
-
-    this.openSlider = this.openSlider.bind(this);
-    this.delayOpenSlider = this.delayOpenSlider.bind(this);
-    this.closeSlider = this.closeSlider.bind(this);
-    this.valueUpdated = this.valueUpdated.bind(this);
+    this.optionsSelected = this.optionsSelected.bind(this);
   }
 
-  private openSlider() {
-    // If we were in the middle of closing the slider, execute
-    // that immediately
-    fastForwardFuse(this.closeSliderFuse);
-
-    // If we were going to open the slider, cancel it because
-    // we are opening it immediately instead
-    cancelFuse(this.openSliderFuse);
-
-    this.setState({
-      sliderState: 'open'
-    });
-  }
-
-  private delayOpenSlider() {
-    // If we were in the middle of closing the slider, execute
-    // that immediately
-    fastForwardFuse(this.closeSliderFuse);
-
-    // If we were going to open the slider, cancel it because
-    // we are restarting the timer on that action
-    cancelFuse(this.openSliderFuse);
-
-    this.openSliderFuse = setFuse(() => {
-      this.openSlider();
-      this.openSliderFuse = null;
-    }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
-  }
-
-  private closeSlider() {
-    // If the slider is already closing, don't bother doing anything
-    if (this.state.sliderState === 'closing') {
-      return;
-    }
-
-    // If we were going to open the slider, cancel it because
-    // we are closing it now
-    cancelFuse(this.openSliderFuse);
-
-    // Start the closing animation
-    this.setState({
-      sliderState: 'closing'
-    });
-
-    // Wait for the closing animation to complete
-    this.closeSliderFuse = setFuse(() => {
-      // Hide the slider now that the closing animation is complete
-      this.setState({
-        sliderState: 'closed'
-      });
-
-      this.closeSliderFuse = null;
-    }, SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS);
-  }
-
-  private valueUpdated(updatedValue: MoodLevel) {
-    this.props.valueUpdated(updatedValue);
-    this.closeSlider();
+  private optionsSelected(selectedOption: SelectSliderMoodLevelOption) {
+    this.props.valueUpdated(selectedOption.moodLevel);
   }
 
   public render() {
-    const listOption = (moodLevel: MoodLevel) => {
-      return (
-        <StyledSliderOption
-          color={this.props.color}
-          onClick={() => this.valueUpdated(moodLevel)}
-          onMouseUp={() => this.valueUpdated(moodLevel)}
-        >
-          {moodLevel.emoji}
-        </StyledSliderOption>
-      );
-    };
+    const triggerElement = (
+      <StyledLabel color={this.props.color}>
+        {this.props.displayText} {this.props.value.emoji}
+      </StyledLabel>
+    );
+
+    const optionElement = (option: SelectSliderMoodLevelOption) => (
+      <span>{option.moodLevel.emoji}</span>
+    );
 
     return (
-      <StyledContainer
+      <MoodLevelSelectSlider
         className={this.props.className}
-        draggable={false}
-        onMouseLeave={this.closeSlider}
-        onMouseDown={this.openSlider}
-        onMouseEnter={this.delayOpenSlider}
-        onMouseMove={this.delayOpenSlider}
-      >
-        <StyledLabel color={this.props.color}>
-          {this.props.displayText}
-          {ObjectUtil.isNullOrUndefined(this.props.value) ? null : this.props.value.emoji}
-        </StyledLabel>
-
-        <SizeMe monitorHeight>
-          {({ size }) => (
-            <StyledSlider
-              color={this.props.color}
-              state={this.state.sliderState}
-              height={size.height}
-            >
-              <ol>
-                {listOption(STRONG_POSITIVE)}
-                {listOption(POSITIVE)}
-                {listOption(NEUTRAL)}
-                {listOption(NEGATIVE)}
-                {listOption(STRONG_NEGATIVE)}
-              </ol>
-            </StyledSlider>
-          )}
-        </SizeMe>
-      </StyledContainer>
+        options={SELECT_SLIDER_MOOD_LEVEL_OPTIONS}
+        optionSelected={this.optionsSelected}
+        triggerElement={triggerElement}
+        optionElement={optionElement}
+      />
     );
   }
 }
