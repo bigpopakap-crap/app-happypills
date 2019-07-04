@@ -15,6 +15,7 @@ import {
   STRONG_NEGATIVE
 } from 'utils/tags';
 import { FuseHandle, cancelFuse, setFuse } from 'utils/fuse';
+import { SliderProperties } from 'react-native';
 
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
 const SLIDER_OPEN_ANIMATION_DURATION_MILLIS = 150;
@@ -51,8 +52,10 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   valueUpdated: (updatedValued: MoodLevel) => void;
 }
 
+type SliderState = 'open' | 'closing' | 'closed';
+
 interface State {
-  isSliderOpen: boolean;
+  sliderState: SliderState;
 }
 
 /* ******************************************************
@@ -74,7 +77,7 @@ const StyledLabel = styled(Pill)`
 `;
 
 interface StyledSliderProps {
-  visible: boolean;
+  state: SliderState;
   height: number | null;
 }
 
@@ -82,8 +85,8 @@ interface StyledSliderProps {
 const StyledSlider = styled(Pill)<StyledSliderProps>`
   /* Use visibility because we want to be able to calculate the rendered height
      of the slider before it is shown. */
-  visibility: ${props => (props.visible ? null : 'hidden')};
-  opacity: ${props => (props.visible ? 1 : 0)};
+  visibility: ${props => (props.state === 'closed' ? 'hidden' : null)};
+  opacity: ${props => (props.state === 'open' ? 1 : 0)};
 
   position: absolute;
   z-index: 100;
@@ -122,7 +125,7 @@ export default class Tag extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isSliderOpen: false
+      sliderState: 'closed'
     };
 
     this.openSliderFuse = null;
@@ -139,7 +142,7 @@ export default class Tag extends React.Component<Props, State> {
     cancelFuse(this.openSliderFuse);
 
     this.setState({
-      isSliderOpen: true
+      sliderState: 'open'
     });
   }
 
@@ -158,7 +161,7 @@ export default class Tag extends React.Component<Props, State> {
     cancelFuse(this.openSliderFuse);
 
     this.setState({
-      isSliderOpen: false
+      sliderState: 'closed'
     });
   }
 
@@ -198,7 +201,7 @@ export default class Tag extends React.Component<Props, State> {
           {({ size }) => (
             <StyledSlider
               color={this.props.color}
-              visible={this.state.isSliderOpen}
+              state={this.state.sliderState}
               height={size.height}
             >
               <ol>
