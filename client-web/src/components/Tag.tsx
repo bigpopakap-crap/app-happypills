@@ -14,11 +14,10 @@ import {
   NEGATIVE,
   STRONG_NEGATIVE
 } from 'utils/tags';
-import { FuseHandle, cancelFuse, setFuse } from 'utils/fuse';
-import { SliderProperties } from 'react-native';
+import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
 
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
-const SLIDER_OPEN_ANIMATION_DURATION_MILLIS = 150;
+const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
 
 /* ******************************************************
                         PROPS AND STATE
@@ -97,7 +96,7 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
 
   width: 100%;
 
-  transition: opacity ${SLIDER_OPEN_ANIMATION_DURATION_MILLIS}ms ease-in-out;
+  transition: opacity ${SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS}ms ease-in-out;
 `;
 
 const StyledSliderOption = styled.li`
@@ -120,6 +119,7 @@ type Timer = number | null;
 
 export default class Tag extends React.Component<Props, State> {
   private openSliderFuse: FuseHandle | null;
+  private closeSliderFuse: FuseHandle | null;
 
   public constructor(props: Readonly<Props>) {
     super(props);
@@ -129,6 +129,7 @@ export default class Tag extends React.Component<Props, State> {
     };
 
     this.openSliderFuse = null;
+    this.closeSliderFuse = null;
 
     this.openSlider = this.openSlider.bind(this);
     this.delayOpenSlider = this.delayOpenSlider.bind(this);
@@ -137,6 +138,10 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   private openSlider() {
+    // If we were in the middle of closing the slider, execute
+    // that immediately
+    fastForwardFuse(this.closeSliderFuse);
+
     // If we were going to open the slider, cancel it because
     // we are opening it immediately instead
     cancelFuse(this.openSliderFuse);
@@ -147,6 +152,12 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   private delayOpenSlider() {
+    // If we were in the middle of closing the slider, execute
+    // that immediately
+    fastForwardFuse(this.closeSliderFuse);
+
+    // If we were going to open the slider, cancel it because
+    // we are restarting the timer on that action
     cancelFuse(this.openSliderFuse);
 
     this.openSliderFuse = setFuse(() => {
@@ -156,13 +167,29 @@ export default class Tag extends React.Component<Props, State> {
   }
 
   private closeSlider() {
+    // If the slider is already closing, don't bother doing anything
+    if (this.state.sliderState === 'closing') {
+      return;
+    }
+
     // If we were going to open the slider, cancel it because
     // we are closing it now
     cancelFuse(this.openSliderFuse);
 
+    // Start the closing animation
     this.setState({
-      sliderState: 'closed'
+      sliderState: 'closing'
     });
+
+    // Wait for the closing animation to complete
+    this.closeSliderFuse = setFuse(() => {
+      // Hide the slider now that the closing animation is complete
+      this.setState({
+        sliderState: 'closed'
+      });
+
+      this.closeSliderFuse = null;
+    }, SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS);
   }
 
   private valueUpdated(updatedValue: MoodLevel) {
