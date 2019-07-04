@@ -19,6 +19,18 @@ import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
 const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
 
+/*
+ * TODO
+ * - add delay after opening before selections are allowed
+ * - add theme variables to CSS (border-radius, etc.)
+ * - split up selection control from actual content
+ * - add animation when emoji is selected
+ * - add keyboard controls
+ * - add aria attributes and accessibility
+ * - add mobile/touch controls
+ * - add tests
+ */
+
 /* ******************************************************
                         PROPS AND STATE
  ****************************************************** */
