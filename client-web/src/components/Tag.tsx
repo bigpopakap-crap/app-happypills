@@ -14,9 +14,10 @@ import {
   NEGATIVE,
   STRONG_NEGATIVE
 } from 'utils/tags';
+import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
 
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
-const SLIDER_OPEN_ANIMATION_DURATION_MILLIS = 150;
+const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
 
 /* ******************************************************
                         PROPS AND STATE
@@ -50,7 +51,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
   valueUpdated: (updatedValued: MoodLevel) => void;
 }
 
-type SliderState = 'closed' | 'opening' | 'open' | 'closing';
+type SliderState = 'open' | 'closing' | 'closed';
 
 interface State {
   sliderState: SliderState;
@@ -83,21 +84,8 @@ interface StyledSliderProps {
 const StyledSlider = styled(Pill)<StyledSliderProps>`
   /* Use visibility because we want to be able to calculate the rendered height
      of the slider before it is shown. */
-  visibility: ${props => {
-    switch (props.state) {
-      case 'closed':
-        return 'hidden';
-      case 'opening':
-        return null;
-      case 'open':
-        return null;
-      case 'closing':
-        return null;
-      default:
-        console.warn(`Unexpected sliderState=${props.state}`);
-        return null;
-    }
-  }};
+  visibility: ${props => (props.state === 'closed' ? 'hidden' : null)};
+  opacity: ${props => (props.state === 'open' ? 1 : 0)};
 
   position: absolute;
   z-index: 100;
@@ -108,23 +96,7 @@ const StyledSlider = styled(Pill)<StyledSliderProps>`
 
   width: 100%;
 
-  opacity: ${props => {
-    switch (props.state) {
-      case 'closed':
-        return 0;
-      case 'opening':
-        return 1;
-      case 'open':
-        return 1;
-      case 'closing':
-        return 0;
-      default:
-        console.warn(`Unexpected sliderState=${props.state}`);
-        return 1;
-    }
-  }};
-
-  transition: opacity ${SLIDER_OPEN_ANIMATION_DURATION_MILLIS}ms ease-in-out;
+  transition: opacity ${SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS}ms ease-in-out;
 `;
 
 const StyledSliderOption = styled.li`
@@ -146,9 +118,8 @@ const StyledSliderOption = styled.li`
 type Timer = number | null;
 
 export default class Tag extends React.Component<Props, State> {
-  private delayOpenSliderTimer: Timer;
-  private animateOpenSliderTimer: Timer;
-  private animateCloseSliderTimer: Timer;
+  private openSliderFuse: FuseHandle | null;
+  private closeSliderFuse: FuseHandle | null;
 
   public constructor(props: Readonly<Props>) {
     super(props);
@@ -157,80 +128,73 @@ export default class Tag extends React.Component<Props, State> {
       sliderState: 'closed'
     };
 
-    this.delayOpenSliderTimer = null;
-    this.animateOpenSliderTimer = null;
-    this.animateCloseSliderTimer = null;
+    this.openSliderFuse = null;
+    this.closeSliderFuse = null;
 
     this.openSlider = this.openSlider.bind(this);
     this.delayOpenSlider = this.delayOpenSlider.bind(this);
-    this.clearTimer = this.clearTimer.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
     this.valueUpdated = this.valueUpdated.bind(this);
   }
 
   private openSlider() {
-    if (!['opening', 'open'].includes(this.state.sliderState)) {
-      // If the slider was closing, cancel that action.
-      this.clearTimer(this.animateCloseSliderTimer);
+    // If we were in the middle of closing the slider, execute
+    // that immediately
+    fastForwardFuse(this.closeSliderFuse);
 
-      // If we were going to open the slider later, cancel that action because
-      // we are doing it now
-      this.clearTimer(this.delayOpenSliderTimer);
+    // If we were going to open the slider, cancel it because
+    // we are opening it immediately instead
+    cancelFuse(this.openSliderFuse);
 
-      this.setState({
-        sliderState: 'opening'
-      });
-
-      this.animateOpenSliderTimer = setTimeout(() => {
-        this.setState({
-          sliderState: 'open'
-        });
-
-        this.animateOpenSliderTimer = null;
-      }, SLIDER_OPEN_ANIMATION_DURATION_MILLIS);
-    }
+    this.setState({
+      sliderState: 'open'
+    });
   }
 
   private delayOpenSlider() {
-    if (!['opening', 'open'].includes(this.state.sliderState)) {
-      this.clearTimer(this.delayOpenSliderTimer);
+    // If we were in the middle of closing the slider, execute
+    // that immediately
+    fastForwardFuse(this.closeSliderFuse);
 
-      this.delayOpenSliderTimer = setTimeout(() => {
-        this.openSlider();
-        this.delayOpenSliderTimer = null;
-      }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
-    }
+    // If we were going to open the slider, cancel it because
+    // we are restarting the timer on that action
+    cancelFuse(this.openSliderFuse);
+
+    this.openSliderFuse = setFuse(() => {
+      this.openSlider();
+      this.openSliderFuse = null;
+    }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
   }
 
   private closeSlider() {
-    if (!['closing', 'closed'].includes(this.state.sliderState)) {
-      // If we were going to open the slider, cancel that action.
-      this.clearTimer(this.animateOpenSliderTimer);
-      this.clearTimer(this.delayOpenSliderTimer);
+    // If the slider is already closing, don't bother doing anything
+    if (this.state.sliderState === 'closing') {
+      return;
+    }
 
+    // If we were going to open the slider, cancel it because
+    // we are closing it now
+    cancelFuse(this.openSliderFuse);
+
+    // Start the closing animation
+    this.setState({
+      sliderState: 'closing'
+    });
+
+    // Wait for the closing animation to complete
+    this.closeSliderFuse = setFuse(() => {
+      // Hide the slider now that the closing animation is complete
       this.setState({
-        sliderState: 'closing'
+        sliderState: 'closed'
       });
 
-      this.animateCloseSliderTimer = setTimeout(() => {
-        this.setState({
-          sliderState: 'closed'
-        });
-
-        this.animateCloseSliderTimer = null;
-      }, SLIDER_OPEN_ANIMATION_DURATION_MILLIS);
-    }
+      this.closeSliderFuse = null;
+    }, SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS);
   }
 
   private valueUpdated(updatedValue: MoodLevel) {
     this.props.valueUpdated(updatedValue);
     this.closeSlider();
-  }
-
-  private clearTimer(timer: Timer) {
-    if (!ObjectUtil.isNullOrUndefined(timer)) {
-      clearTimeout(timer);
-    }
   }
 
   public render() {
