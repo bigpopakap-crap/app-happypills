@@ -111,15 +111,6 @@ const StyledSlider = styled.div<StyledSliderProps>`
   transition: opacity ${SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS}ms ease-in-out;
 `;
 
-const StyledSliderOption = styled.li`
-  padding: 4px;
-
-  text-align: center;
-  font-size: 24px;
-
-  border-radius: 4px;
-`;
-
 /* ******************************************************
                       THE COMPONENT
  ****************************************************** */
@@ -208,18 +199,6 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   }
 
   public render() {
-    const listOption = (option: T) => {
-      return (
-        <StyledSliderOption
-          key={option.key}
-          onClick={() => this.optionSelected(option)}
-          onMouseUp={() => this.optionSelected(option)}
-        >
-          {this.props.optionElement(option)}
-        </StyledSliderOption>
-      );
-    };
-
     return (
       <StyledContainer
         className={this.props.className}
@@ -234,7 +213,17 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
         <SizeMe monitorHeight>
           {({ size }) => (
             <StyledSlider state={this.state.sliderState} height={size.height}>
-              <ol>{this.props.options.map(option => listOption(option))}</ol>
+              <ol>
+                {this.props.options.map(option => (
+                  <li
+                    key={option.key}
+                    onClick={() => this.optionSelected(option)}
+                    onMouseUp={() => this.optionSelected(option)}
+                  >
+                    {this.props.optionElement(option)}
+                  </li>
+                ))}
+              </ol>
             </StyledSlider>
           )}
         </SizeMe>

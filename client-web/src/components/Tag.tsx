@@ -74,8 +74,17 @@ class MoodLevelSelectSlider extends SelectSlider<SelectSliderMoodLevelOption> {}
                       STYLED COMPONENTS
  ****************************************************** */
 
-const StyledLabel = styled(Pill)`
+const StyledSelectSliderTrigger = styled(Pill)`
   min-width: 60px;
+`;
+
+const StyledSelectSliderOption = styled.div`
+  padding: 4px;
+
+  text-align: center;
+  font-size: 24px;
+
+  border-radius: 4px;
 `;
 
 /* ******************************************************
@@ -95,13 +104,13 @@ export default class Tag extends React.Component<Props, {}> {
 
   public render() {
     const triggerElement = (
-      <StyledLabel color={this.props.color}>
+      <StyledSelectSliderTrigger color={this.props.color}>
         {this.props.displayText} {this.props.value.emoji}
-      </StyledLabel>
+      </StyledSelectSliderTrigger>
     );
 
     const optionElement = (option: SelectSliderMoodLevelOption) => (
-      <span>{option.moodLevel.emoji}</span>
+      <StyledSelectSliderOption>{option.moodLevel.emoji}</StyledSelectSliderOption>
     );
 
     return (
