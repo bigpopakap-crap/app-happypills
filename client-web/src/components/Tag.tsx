@@ -81,6 +81,11 @@ class MoodLevelSelectSlider extends SelectSlider<SelectSliderMoodLevelOption> {}
 
 const StyledSelectSliderTrigger = styled(Pill)`
   min-width: 60px;
+
+  // TODO remove this eventually
+  *:focus & {
+    outline: solid red 4px;
+  }
 `;
 
 interface StyledSelectSliderOptionProps {

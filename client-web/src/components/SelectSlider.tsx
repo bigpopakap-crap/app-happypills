@@ -145,6 +145,10 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   private delayOpenSliderFuse: FuseHandle | null;
   private animateCloseSliderFuse: FuseHandle | null;
 
+  /* ******************************************************
+                      COMPONENT INITIALIZATION
+   ****************************************************** */
+
   public constructor(props: Readonly<Props<T>>) {
     super(props);
 
@@ -160,7 +164,12 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
     this.delayOpenSlider = this.delayOpenSlider.bind(this);
     this.closeSlider = this.closeSlider.bind(this);
     this.optionSelected = this.optionSelected.bind(this);
+    this.focusIn = this.focusIn.bind(this);
   }
+
+  /* ******************************************************
+                   COMPONENT STATE MUTATION
+   ****************************************************** */
 
   private openSlider() {
     // If the slider is already open, do nothing
@@ -229,6 +238,10 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
     }, SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS);
   }
 
+  /* ******************************************************
+                   COMPONENT ACTIONS
+   ****************************************************** */
+
   private optionSelected(selectedOption: T) {
     // short-circuit if the slider was just opened. We want a small
     // delay period to avoid accidental selections
@@ -246,18 +259,29 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
     this.closeSlider();
   }
 
+  /* ******************************************************
+                    KEYBOARD HANDLERS
+   ****************************************************** */
+
+  private focusIn(): void {
+    // TODO handle this
+    // If nothing is happening, focus the trigger element
+  }
+
   public render() {
     return (
       <StyledContainer
         className={this.props.className}
         draggable={false}
-        aria-role={'listbox'}
+        role={'listbox'}
+        tabIndex={0}
+        onFocus={this.focusIn}
         onMouseLeave={this.closeSlider}
         onMouseDown={this.openSlider}
         onMouseEnter={this.delayOpenSlider}
         onMouseMove={this.delayOpenSlider}
       >
-        <div tabIndex={0}>{this.props.triggerElement}</div>
+        {this.props.triggerElement}
 
         <SizeMe monitorHeight>
           {({ size }) => (
@@ -266,7 +290,7 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
                 <ol>
                   {this.props.options.map(option => (
                     <li
-                      aria-role={'option'}
+                      role={'option'}
                       key={option.key}
                       onClick={() => this.optionSelected(option)}
                       onMouseUp={() => this.optionSelected(option)}
