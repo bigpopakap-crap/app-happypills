@@ -21,7 +21,19 @@ import {
  */
 
 /* ******************************************************
-                        PROPS AND STATE
+                          CONSTANTS
+ ****************************************************** */
+
+const SELECT_SLIDER_MOOD_LEVEL_OPTIONS = [
+  STRONG_POSITIVE,
+  POSITIVE,
+  NEUTRAL,
+  NEGATIVE,
+  STRONG_NEGATIVE
+].map(moodLevel => ({ key: `${moodLevel.value}`, moodLevel }));
+
+/* ******************************************************
+                          PROPS
  ****************************************************** */
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
@@ -60,14 +72,6 @@ interface SelectSliderMoodLevelOption {
   key: string;
   moodLevel: MoodLevel;
 }
-
-const SELECT_SLIDER_MOOD_LEVEL_OPTIONS = [
-  STRONG_POSITIVE,
-  POSITIVE,
-  NEUTRAL,
-  NEGATIVE,
-  STRONG_NEGATIVE
-].map(moodLevel => ({ key: `${moodLevel.value}`, moodLevel }));
 
 class MoodLevelSelectSlider extends SelectSlider<SelectSliderMoodLevelOption> {}
 

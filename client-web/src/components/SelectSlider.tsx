@@ -5,10 +5,6 @@ import { ObjectUtil } from 'ts-null-or-undefined';
 
 import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
 
-const ACCIDENTAL_SELECTION_TIME_MILLIS = 150;
-const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
-const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
-
 /*
  * TODO
  * - add keyboard controls
@@ -18,7 +14,15 @@ const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
  */
 
 /* ******************************************************
-                        PROPS AND STATE
+                        CONSTANTS
+ ****************************************************** */
+
+const ACCIDENTAL_SELECTION_TIME_MILLIS = 150;
+const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
+const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
+
+/* ******************************************************
+                          PROPS
  ****************************************************** */
 
 /**
@@ -76,6 +80,10 @@ interface Props<T extends SelectSliderOption> extends React.HTMLAttributes<HTMLD
    */
   optionElement: (option: T) => ReactNode;
 }
+
+/* ******************************************************
+                          STATE
+ ****************************************************** */
 
 type SliderState = 'open' | 'closing' | 'closed';
 
