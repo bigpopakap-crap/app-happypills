@@ -57,9 +57,10 @@ interface Props<T extends SelectSliderOption> extends React.HTMLAttributes<HTMLD
 
   /**
    * The React element or component that will render the trigger (the element
-   * that shows up when the slider is collapsed). Note that the selected value
-   * is not passed in because the {@link SelectSlider} component does not know about
-   * the currently selected value.
+   * that shows up when the slider is collapsed).
+   *
+   * Note that the selected value is not passed in because the {@link SelectSlider}
+   * component does not know about the currently selected value.
    */
   triggerElement: ReactNode;
 
@@ -250,12 +251,13 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
       <StyledContainer
         className={this.props.className}
         draggable={false}
+        aria-role={'listbox'}
         onMouseLeave={this.closeSlider}
         onMouseDown={this.openSlider}
         onMouseEnter={this.delayOpenSlider}
         onMouseMove={this.delayOpenSlider}
       >
-        {this.props.triggerElement}
+        <div tabIndex={0}>{this.props.triggerElement}</div>
 
         <SizeMe monitorHeight>
           {({ size }) => (
@@ -264,6 +266,7 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
                 <ol>
                   {this.props.options.map(option => (
                     <li
+                      aria-role={'option'}
                       key={option.key}
                       onClick={() => this.optionSelected(option)}
                       onMouseUp={() => this.optionSelected(option)}

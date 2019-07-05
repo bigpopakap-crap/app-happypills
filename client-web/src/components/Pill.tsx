@@ -30,7 +30,7 @@ const StyledPill = styled.div.attrs(props => ({
 export default class Pill extends React.Component<Props, {}> {
   public render() {
     return (
-      <StyledPill className={this.props.className} color={this.props.color}>
+      <StyledPill className={this.props.className} {...this.props} color={this.props.color}>
         {this.props.children}
       </StyledPill>
     );
