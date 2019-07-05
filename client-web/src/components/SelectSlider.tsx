@@ -128,8 +128,8 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   Props<T>,
   State
 > {
-  private openSliderFuse: FuseHandle | null;
-  private closeSliderFuse: FuseHandle | null;
+  private delayOpenSliderFuse: FuseHandle | null;
+  private animateCloseSliderFuse: FuseHandle | null;
 
   public constructor(props: Readonly<Props<T>>) {
     super(props);
@@ -138,8 +138,8 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
       sliderState: 'closed'
     };
 
-    this.openSliderFuse = null;
-    this.closeSliderFuse = null;
+    this.delayOpenSliderFuse = null;
+    this.animateCloseSliderFuse = null;
 
     this.openSlider = this.openSlider.bind(this);
     this.delayOpenSlider = this.delayOpenSlider.bind(this);
@@ -150,11 +150,11 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   private openSlider() {
     // If we were in the middle of closing the slider, execute
     // that immediately
-    fastForwardFuse(this.closeSliderFuse);
+    fastForwardFuse(this.animateCloseSliderFuse);
 
     // If we were going to open the slider, cancel it because
     // we are opening it immediately instead
-    cancelFuse(this.openSliderFuse);
+    cancelFuse(this.delayOpenSliderFuse);
 
     this.setState({
       sliderState: 'open'
@@ -164,15 +164,15 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   private delayOpenSlider() {
     // If we were in the middle of closing the slider, execute
     // that immediately
-    fastForwardFuse(this.closeSliderFuse);
+    fastForwardFuse(this.animateCloseSliderFuse);
 
     // If we were going to open the slider, cancel it because
     // we are restarting the timer on that action
-    cancelFuse(this.openSliderFuse);
+    cancelFuse(this.delayOpenSliderFuse);
 
-    this.openSliderFuse = setFuse(() => {
+    this.delayOpenSliderFuse = setFuse(() => {
       this.openSlider();
-      this.openSliderFuse = null;
+      this.delayOpenSliderFuse = null;
     }, DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS);
   }
 
@@ -184,7 +184,7 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
 
     // If we were going to open the slider, cancel it because
     // we are closing it now
-    cancelFuse(this.openSliderFuse);
+    cancelFuse(this.delayOpenSliderFuse);
 
     // Start the closing animation
     this.setState({
@@ -192,13 +192,13 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
     });
 
     // Wait for the closing animation to complete
-    this.closeSliderFuse = setFuse(() => {
+    this.animateCloseSliderFuse = setFuse(() => {
       // Hide the slider now that the closing animation is complete
       this.setState({
         sliderState: 'closed'
       });
 
-      this.closeSliderFuse = null;
+      this.animateCloseSliderFuse = null;
     }, SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS);
   }
 
