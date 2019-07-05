@@ -59,6 +59,14 @@ interface Props<T extends SelectSliderOption> extends React.HTMLAttributes<HTMLD
   triggerElement: ReactNode;
 
   /**
+   * Generator for the element containing the list of items to render. It is
+   * given the children is must render inside itself, and must render them.
+   *
+   * @param children {ReactNode[]} the given slider must render these children
+   */
+  sliderElement: (children: ReactNode | Element) => ReactNode;
+
+  /**
    * Generator for each option element. It should return a React element or component
    * to render the option in the UI.
    * @param option {T} the option (one of the objects from {@link options} that is
@@ -213,17 +221,19 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
         <SizeMe monitorHeight>
           {({ size }) => (
             <StyledSlider state={this.state.sliderState} height={size.height}>
-              <ol>
-                {this.props.options.map(option => (
-                  <li
-                    key={option.key}
-                    onClick={() => this.optionSelected(option)}
-                    onMouseUp={() => this.optionSelected(option)}
-                  >
-                    {this.props.optionElement(option)}
-                  </li>
-                ))}
-              </ol>
+              {this.props.sliderElement(
+                <ol>
+                  {this.props.options.map(option => (
+                    <li
+                      key={option.key}
+                      onClick={() => this.optionSelected(option)}
+                      onMouseUp={() => this.optionSelected(option)}
+                    >
+                      {this.props.optionElement(option)}
+                    </li>
+                  ))}
+                </ol>
+              )}
             </StyledSlider>
           )}
         </SizeMe>

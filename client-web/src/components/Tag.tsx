@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
+import { darken } from 'polished';
 
 import Pill from './Pill';
 import SelectSlider from './SelectSlider';
@@ -78,13 +79,21 @@ const StyledSelectSliderTrigger = styled(Pill)`
   min-width: 60px;
 `;
 
-const StyledSelectSliderOption = styled.div`
+interface StyledSelectSliderOptionProps {
+  color: string;
+}
+
+const StyledSelectSliderOption = styled.div<StyledSelectSliderOptionProps>`
   padding: 4px;
 
   text-align: center;
   font-size: 24px;
 
   border-radius: 4px;
+
+  &:hover {
+    background-color: ${props => darken(0.2, props.color)};
+  }
 `;
 
 /* ******************************************************
@@ -109,8 +118,14 @@ export default class Tag extends React.Component<Props, {}> {
       </StyledSelectSliderTrigger>
     );
 
+    const sliderElement = (children: ReactNode | Element) => (
+      <Pill color={this.props.color}>{children}</Pill>
+    );
+
     const optionElement = (option: SelectSliderMoodLevelOption) => (
-      <StyledSelectSliderOption>{option.moodLevel.emoji}</StyledSelectSliderOption>
+      <StyledSelectSliderOption color={this.props.color}>
+        {option.moodLevel.emoji}
+      </StyledSelectSliderOption>
     );
 
     return (
@@ -119,6 +134,7 @@ export default class Tag extends React.Component<Props, {}> {
         options={SELECT_SLIDER_MOOD_LEVEL_OPTIONS}
         optionSelected={this.optionsSelected}
         triggerElement={triggerElement}
+        sliderElement={sliderElement}
         optionElement={optionElement}
       />
     );
