@@ -1,15 +1,16 @@
 import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 import { SizeMe } from 'react-sizeme';
+import { ObjectUtil } from 'ts-null-or-undefined';
 
 import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
 
+const ACCIDENTAL_SELECTION_TIME_MILLIS = 150;
 const DELAYED_SLIDER_OPEN_WAIT_TIME_MILLIS = 250;
 const SLIDER_OPEN_CLOSE_ANIMATION_DURATION_MILLIS = 150;
 
 /*
  * TODO
- * - add delay after opening before selections are allowed
  * - add keyboard controls
  * - add aria attributes and accessibility
  * - add mobile/touch controls
@@ -80,6 +81,11 @@ type SliderState = 'open' | 'closing' | 'closed';
 
 interface State {
   sliderState: SliderState;
+
+  /**
+   * The time the slider was most recently opened in epoch milliseconds
+   */
+  sliderOpenedAt: number | null;
 }
 
 /* ******************************************************
@@ -134,7 +140,8 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
     super(props);
 
     this.state = {
-      sliderState: 'closed'
+      sliderState: 'closed',
+      sliderOpenedAt: null
     };
 
     this.delayOpenSliderFuse = null;
@@ -147,6 +154,12 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   }
 
   private openSlider() {
+    // If the slider is already open, do nothing
+    // If the slider is already closing or closed, don't bother doing anything
+    if (this.state.sliderState === 'open') {
+      return;
+    }
+
     // If we were in the middle of closing the slider, execute
     // that immediately
     fastForwardFuse(this.animateCloseSliderFuse);
@@ -156,7 +169,8 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
     cancelFuse(this.delayOpenSliderFuse);
 
     this.setState({
-      sliderState: 'open'
+      sliderState: 'open',
+      sliderOpenedAt: new Date().getTime()
     });
   }
 
@@ -176,25 +190,30 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   }
 
   private closeSlider() {
+    // If we were going to open the slider, cancel it because
+    // we are closing it now
+    // NOTE: we should do this regardless of whether the slider is currently
+    // closed or closing. Otherwise, a brief mouseOver will cause the slider to open
+    // because we didn't cancel the delayed open
+    cancelFuse(this.delayOpenSliderFuse);
+
     // If the slider is already closing, don't bother doing anything
-    if (this.state.sliderState === 'closing') {
+    if (this.state.sliderState === 'closing' || this.state.sliderState === 'closed') {
       return;
     }
 
-    // If we were going to open the slider, cancel it because
-    // we are closing it now
-    cancelFuse(this.delayOpenSliderFuse);
-
     // Start the closing animation
     this.setState({
-      sliderState: 'closing'
+      sliderState: 'closing',
+      sliderOpenedAt: null
     });
 
     // Wait for the closing animation to complete
     this.animateCloseSliderFuse = setFuse(() => {
       // Hide the slider now that the closing animation is complete
       this.setState({
-        sliderState: 'closed'
+        sliderState: 'closed',
+        sliderOpenedAt: null
       });
 
       this.animateCloseSliderFuse = null;
@@ -202,6 +221,18 @@ export default class SelectSlider<T extends SelectSliderOption> extends React.Co
   }
 
   private optionSelected(selectedOption: T) {
+    // short-circuit if the slider was just opened. We want a small
+    // delay period to avoid accidental selections
+    const now = new Date().getTime();
+    if (
+      // The sliderOpenedAt timestamp isn't set. This is weird, but maybe means the slider isn't open?
+      ObjectUtil.isNullOrUndefined(this.state.sliderOpenedAt) ||
+      // Not enough time has passed to consider this selection intentional
+      now - this.state.sliderOpenedAt < ACCIDENTAL_SELECTION_TIME_MILLIS
+    ) {
+      return;
+    }
+
     this.props.optionSelected(selectedOption);
     this.closeSlider();
   }
