@@ -10,6 +10,8 @@ import { FuseHandle, cancelFuse, setFuse, fastForwardFuse } from 'utils/fuse';
  * - add keyboard controls
  * - add aria attributes and accessibility
  * - add mobile/touch controls
+ * - provide higher-order components for each of the passed-in components,
+ *   if it makes sense for making it easier to pass them in
  * - add tests
  */
 
