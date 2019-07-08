@@ -104,9 +104,18 @@ interface State {
  ****************************************************** */
 
 const StyledContainer = styled.div`
-  /* For vertically centering the slider */
+  /*
+   * For vertically centering the slider.
+   * This can be overridden to position: absolute if necessary, but likely the
+   * best solution for custom positioning is to wrap this component in another
+   * div that is correctly positioned.
+   */
   position: relative;
 
+  /*
+   * This is important for mouse discoverability, hence it is defined here.
+   * This can be overridden if desired.
+   */
   cursor: pointer;
 
   /* Disable text highlighting because it messes with the mouse drag behavior */
